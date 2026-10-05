@@ -1,0 +1,46 @@
+services:
+  epay:
+    build: .
+    container_name: epay-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:9080:80"
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./docker/data/config.php:/var/www/html/config.php
+      - epay_uploads:/var/www/html/assets/img
+    networks:
+      - epay-internal
+
+  db:
+    image: mysql:8.0
+    container_name: epay-db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: epay
+      MYSQL_USER: epay
+      MYSQL_PASSWORD: change-this-before-start
+      MYSQL_ROOT_PASSWORD: change-this-before-start
+      TZ: Asia/Shanghai
+    volumes:
+      - epay_db:/var/lib/mysql
+    networks:
+      - epay-internal
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  epay_db:
+  epay_uploads:
+
+networks:
+  epay-internal:
+    internal: true
