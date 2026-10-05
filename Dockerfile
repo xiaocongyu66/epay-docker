@@ -16,7 +16,8 @@ RUN apt-get update \
 COPY docker/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY . /var/www/html/
 
-RUN chown -R www-data:www-data /var/www/html \
+RUN mkdir -p /var/www/html/assets/img/article \
+    && chown -R www-data:www-data /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \; \
     && chmod 775 /var/www/html/install /var/www/html/assets/img /var/www/html/assets/img/article
